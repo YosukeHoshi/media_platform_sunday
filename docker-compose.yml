@@ -6,6 +6,7 @@ services:
     tty: true
     volumes:
       - .:/go/src
+      # - ./initdb.d:/docker-entrypoint-initdb.d
     ports:
       - "8080:8080"
     depends_on:
@@ -16,4 +17,7 @@ services:
     container_name: mysql-container
     environment:
       MYSQL_ROOT_PASSWORD: root-mps  #あとでenvファイルとかにする
-      MYSQL_DATABASE: golang-mps-database
+      MYSQL_DATABASE: data_base
+    # volumes:
+    #   - ./initdb.d:/docker-entrypoint-initdb.d
+      
