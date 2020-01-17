@@ -18,6 +18,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root-mps  #あとでenvファイルとかにする
       MYSQL_DATABASE: data_base
-    # volumes:
+    volumes:
+      - ./mysql/my.cnf:/etc/mysql/conf.d/my.cnf
     #   - ./initdb.d:/docker-entrypoint-initdb.d
       

@@ -1,13 +1,31 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
+
+func signup(w http.ResponseWriter, r *http.Request) {
+	db := connectGorm()
+
+	db.Set("gorm:table_options", "ENGINE = InnoDB").AutoMigrate(&User{})
+
+	defer db.Close()
+
+	var user User
+	json.NewDecoder(r.Body).Decode(&user)
+
+	fmt.Printf("(%%#v) %#v\n", user)
+	db.NewRecord(user)
+	db.Create(&user)
+	fmt.Fprintf(w, "add user")
+}
 
 const (
 	// データベース
@@ -24,38 +42,39 @@ const (
 
 	// DB名
 	DBName = "data_base"
+
+	// DB文字コード
+	DBChar = "charset=utf8mb4&parseTime=True&loc=Local"
 )
 
 func connectGorm() *gorm.DB {
-	connectTemplate := "%s:%s@%s/%s"
-	connect := fmt.Sprintf(connectTemplate, DBUser, DBPass, DBProtocol, DBName)
+	connectTemplate := "%s:%s@%s/%s?%s"
+	connect := fmt.Sprintf(connectTemplate, DBUser, DBPass, DBProtocol, DBName, DBChar)
+	fmt.Println(connect)
 	db, err := gorm.Open(Dialect, connect)
 
 	if err != nil {
 		log.Println(err.Error())
 	} else {
-		log.Println("成功")
+		log.Println("データベースへの接続成功")
 	}
 
 	return db
 }
 
 func main() {
-	db := connectGorm()
+	http.HandleFunc("/signup", signup)
+	http.ListenAndServe(":8080", nil)
+}
 
-	//db.Set("gorm:table_options", "ENGINE = InnoDB").AutoMigrate(&User{})
-
-	defer db.Close()
+type User struct {
+	gorm.Model
+	Name string `json: "Name"`
+	Age  int    `json: "Age"`
+	Sex  string `json: "Sex"`
 }
 
 /*
-type User struct {
-	gorm.Model
-	Name string `gorm:"size:255"`
-	Age  int
-	Sex  string `gorm:"size:255"`
-}
-
 func (u User) String() string {
 	return fmt.Sprintf("%s(%d)", u.Name, u.Age)
 }
