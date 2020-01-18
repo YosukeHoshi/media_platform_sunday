@@ -69,9 +69,12 @@ func main() {
 
 type User struct {
 	gorm.Model
-	Name string `json: "Name"`
-	Age  int    `json: "Age"`
-	Sex  string `json: "Sex"`
+	UserName string `json:"user_name" gorm:"size:255"`
+	Password string `json:"password" gorm:"size:255"`
+	Email string `json:"email" gorm:"type:varchar(100);unique_index"`
+	IconImage string `json:"icon_image" gorm:"size:255"`
+	HeaderImage string `json:"header_image" gorm:"size:255"`
+	Description string `json:"description" gorm:"size:255"`
 }
 
 /*
