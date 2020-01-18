@@ -5,11 +5,14 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"golang.org/x/crypto/bcrypt"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
+
+
 
 func signup(w http.ResponseWriter, r *http.Request) {
 	db := connectGorm()
@@ -20,6 +23,14 @@ func signup(w http.ResponseWriter, r *http.Request) {
 
 	var user User
 	json.NewDecoder(r.Body).Decode(&user)
+
+	passwordHash, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	user.Password = passwordHash
 
 	fmt.Printf("(%%#v) %#v\n", user)
 	db.NewRecord(user)
@@ -70,7 +81,7 @@ func main() {
 type User struct {
 	gorm.Model
 	UserName string `json:"user_name" gorm:"size:255"`
-	Password string `json:"password" gorm:"size:255"`
+	Password []byte `json:"password" gorm:"size:255"`
 	Email string `json:"email" gorm:"type:varchar(100);unique_index"`
 	IconImage string `json:"icon_image" gorm:"size:255"`
 	HeaderImage string `json:"header_image" gorm:"size:255"`
