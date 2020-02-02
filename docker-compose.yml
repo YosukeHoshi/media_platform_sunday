@@ -5,7 +5,7 @@ services:
     build: .
     tty: true
     volumes:
-      - .:/go/src
+      - ./web:/go/src
       # - ./initdb.d:/docker-entrypoint-initdb.d
     ports:
       - "8080:8080"
