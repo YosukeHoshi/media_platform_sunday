@@ -42,22 +42,24 @@ func connectGorm() *gorm.DB {
 	connect := fmt.Sprintf(connectTemplate, DBUser, DBPass, DBProtocol, DBName, DBChar)
 	fmt.Println(connect)
 	db, err := gorm.Open(Dialect, connect)
-
 	if err != nil {
 		log.Println(err.Error())
 	} else {
 		log.Println("データベースへの接続成功")
 	}
 
+	defer db.Close()
+
 	return db
 }
 
 var db *gorm.DB
 
+
 func init()  {
 	db = connectGorm()
 	db.Set("gorm:table_options", "ENGINE = InnoDB").AutoMigrate(&User{}, &Note{}, &Sns{}, &Session{})
-	// defer db.Close() <= what's this?
+	// defer db.Close() // openした後にcloseさせてメモリを解放してあげる必要がある
 }
 
 func main() {
@@ -106,20 +108,23 @@ func signup(w http.ResponseWriter, r *http.Request) {
 
 	user.Password = string(passwordHash)
 
-
-	// fmt.Printf("(%%#v) %#v\n", user)
-	if !db.NewRecord(user) {
-		return
-	}
-	db.Create(&user)
-	printLog(w,"add user")
-
 	session := user.CreateSession()
 	cookie := &http.Cookie{
 		Name: "session_id",
 		Value: session.UUID,
 	}
 	http.SetCookie(w, cookie)
+
+	if !db.NewRecord(user) {
+		return
+	}
+	db.Create(&user)
+	printLog(w,"add user")
+
+	if !db.NewRecord(session) {
+		return
+	}
+	db.Create(&session)
 	printLog(w,"set cookie")
 }
 
