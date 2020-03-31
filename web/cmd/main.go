@@ -11,5 +11,9 @@ func main() {
 	http.HandleFunc("/signin", account.Signin)
 	http.HandleFunc("/signout", account.Signout)
 	http.HandleFunc("/post", post.CreatePost)
+	http.HandleFunc("/getpost", post.GetMyNotesHandler)
+	// 確認用
+	http.HandleFunc("/getcookie", account.GetCookie)
+	http.HandleFunc("/update", post.UpdataNoteHandler)
 	http.ListenAndServe(":8080", nil)
 }

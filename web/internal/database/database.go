@@ -1,11 +1,11 @@
 package database
 
-import(
+import (
 	"fmt"
-	"log"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"log"
 )
 
 const (
@@ -44,10 +44,10 @@ func ConnectGorm() *gorm.DB {
 
 var Db *gorm.DB
 
-func init()  {
+func init() {
 	Db = ConnectGorm()
 	Db.Set("gorm:table_options", "ENGINE = InnoDB").AutoMigrate(&User{}, &Note{}, &Sns{}, &Session{})
 	Db.LogMode(true)
 
-	defer Db.Close()
+	// defer Db.Close()
 }
