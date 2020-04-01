@@ -59,8 +59,9 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 	}
 	http.SetCookie(w, cookie)
 
-	if !database.Db.NewRecord(user) {
+	if database.Db.NewRecord(user) {
 		w.WriteHeader(http.StatusConflict)
+		w.Write([]byte("this user infomation is already used."))
 		log.Println("this user infomation is already used.")
 		return
 	}

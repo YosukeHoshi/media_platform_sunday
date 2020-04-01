@@ -12,6 +12,8 @@ func main() {
 	http.HandleFunc("/signout", account.Signout)
 	http.HandleFunc("/post", post.CreatePost)
 	http.HandleFunc("/getpost", post.GetMyNotesHandler)
+	http.HandleFunc("/getall", post.GetAllNotesHandler)
+	http.HandleFunc("/delete", post.DeleteNoteHandler)
 	// 確認用
 	http.HandleFunc("/getcookie", account.GetCookie)
 	http.HandleFunc("/update", post.UpdataNoteHandler)

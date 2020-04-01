@@ -59,7 +59,11 @@ func GetNote(ID uint) (note Note, err error) {
 	return
 }
 
-// GetMyNotes returns the signed-in user's note
+func (note *Note) Delete() error {
+	return Db.Delete(&note).Error
+}
+
+// GetMyNotes returns the signed-in user's notes
 func GetMyNotes(sessionUserName string) (notes []Note, err error) {
 	query := Db.Table("notes").
 		Select("notes.*, users.user_name").
@@ -90,6 +94,38 @@ func GetMyNotes(sessionUserName string) (notes []Note, err error) {
 	return
 }
 
+// GetAllNotes returns all notes
+func GetAllNotes() (notes []Note, err error) {
+	query := Db.Table("notes").
+		Select("notes.*, users.user_name").
+		Joins("inner join users on notes.user_name = users.user_name").
+		Where("notes.deleted_at is NULL")
+	rows, err := query.Rows()
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	var note Note
+	var user User
+	for rows.Next() {
+		err = query.ScanRows(rows, &note)
+		if err != nil {
+			fmt.Println(err.Error())
+			return
+		}
+		err = query.ScanRows(rows, &user)
+		if err != nil {
+			fmt.Println(err.Error())
+			return
+		}
+		note.User = user
+		notes = append(notes, note)
+	}
+	return
+}
+
+// UpdateNote update the note
 func (note *Note) UpdateNote(updateNote Note) error {
 	return Db.Model(&note).Updates(updateNote).Error
 }

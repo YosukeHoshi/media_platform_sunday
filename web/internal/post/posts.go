@@ -92,11 +92,11 @@ func GetMyNotesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusOK)
 	w.Write(bytes)
-	log.Println("update success")
+	log.Println("get your notes")
 	return
 }
 
-// GetAllNotesHandler returns all notes
+// GetAllNotesHandler returns all notes.(フォロー機能を付けたらフォローしているユーザーに絞る)
 func GetAllNotesHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		w.WriteHeader(http.StatusMethodNotAllowed)
@@ -104,6 +104,26 @@ func GetAllNotesHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println("Method Not Allowed. Only POST Is Available.")
 		return
 	}
+
+	_, err := r.Cookie(("session_id"))
+	if err != nil {
+		// check later
+		log.Fatal("Cookie: ", err)
+	}
+
+	notes, err := database.GetAllNotes()
+	if err != nil {
+		log.Println(err.Error())
+	}
+
+	bytes, err := json.Marshal(&notes)
+	if err != nil {
+		log.Println(err.Error())
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Write(bytes)
+	log.Println("get  notes")
+	return
 }
 
 // UpdateNote is
@@ -139,8 +159,50 @@ func UpdataNoteHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("update success"))
-	log.Println("update success")
+	w.Write([]byte("update successful"))
+	log.Println("update successful")
+	return
+}
+
+func DeleteNoteHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		w.Write([]byte("Method Not Allowed. Only POST Is Available."))
+		log.Println("Method Not Allowed. Only POST Is Available.")
+		return
+	}
+
+	_, err := r.Cookie(("session_id"))
+	if err != nil {
+		// check later
+		log.Fatal("Cookie: ", err)
+	}
+
+	var note database.Note
+	err = json.NewDecoder(r.Body).Decode(&note)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+
+	if note.ID == 0 {
+		log.Println("id is requested")
+		return
+	}
+
+	deleteNote, err := database.GetNote(note.ID)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+	err = deleteNote.Delete()
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("delete successful"))
+	log.Println("delete successful")
 	return
 }
 
