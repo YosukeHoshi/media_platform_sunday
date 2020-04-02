@@ -10,12 +10,12 @@ func main() {
 	http.HandleFunc("/signup", account.Signup)
 	http.HandleFunc("/signin", account.Signin)
 	http.HandleFunc("/signout", account.Signout)
-	http.HandleFunc("/post", post.CreatePost)
-	http.HandleFunc("/getpost", post.GetMyNotesHandler)
-	http.HandleFunc("/getall", post.GetAllNotesHandler)
-	http.HandleFunc("/delete", post.DeleteNoteHandler)
+	http.HandleFunc("/post", account.SignInRequired(post.CreatePost))
+	http.HandleFunc("/getpost", account.SignInRequired(post.GetMyNotesHandler))
+	http.HandleFunc("/getall", account.SignInRequired(post.GetAllNotesHandler))
+	http.HandleFunc("/delete", account.SignInRequired(post.DeleteNoteHandler))
 	// 確認用
 	http.HandleFunc("/getcookie", account.GetCookie)
-	http.HandleFunc("/update", post.UpdataNoteHandler)
+	http.HandleFunc("/update", account.SignInRequired(post.UpdataNoteHandler))
 	http.ListenAndServe(":8080", nil)
 }

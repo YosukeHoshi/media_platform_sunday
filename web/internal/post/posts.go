@@ -43,7 +43,7 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie(("session_id"))
 	if err != nil {
 		// check later
-		log.Fatal("Cookie: ", err)
+		log.Println("Cookie: ", err)
 	}
 
 	// sessionテーブルからcookieにあるsessionIDとuuidが一致するものを取得
@@ -72,7 +72,7 @@ func GetMyNotesHandler(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie(("session_id"))
 	if err != nil {
 		// check later
-		log.Fatal("Cookie: ", err)
+		log.Println("Cookie: ", err)
 	}
 
 	session, err := database.GetSession(cookie.Value)
@@ -108,7 +108,7 @@ func GetAllNotesHandler(w http.ResponseWriter, r *http.Request) {
 	_, err := r.Cookie(("session_id"))
 	if err != nil {
 		// check later
-		log.Fatal("Cookie: ", err)
+		log.Println("Cookie: ", err)
 	}
 
 	notes, err := database.GetAllNotes()
@@ -175,7 +175,7 @@ func DeleteNoteHandler(w http.ResponseWriter, r *http.Request) {
 	_, err := r.Cookie(("session_id"))
 	if err != nil {
 		// check later
-		log.Fatal("Cookie: ", err)
+		log.Println("Cookie: ", err)
 	}
 
 	var note database.Note
@@ -205,16 +205,3 @@ func DeleteNoteHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("delete successful")
 	return
 }
-
-// func HandleOnlyPost(w http.ResponseWriter, r *http.Request) error {
-// 	if r.Method != http.MethodPost {
-// 		w.WriteHeader(http.StatusMethodNotAllowed)
-// 		return errors.New(fmt.Sprintf("Method Not Allowed. Only POST Is Available."))
-// 	}
-// 	return nil
-// }
-
-// func PrintLog(w http.ResponseWriter, st string) {
-// 	w.Write([]byte(st))
-// 	log.Println(st)
-// }

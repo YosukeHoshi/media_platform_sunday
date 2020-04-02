@@ -13,6 +13,38 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// SignInRequired
+func SignInRequired(h http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if isSignIn(r) {
+			h.ServeHTTP(w, r)
+		} else {
+			w.WriteHeader(http.StatusUnauthorized)
+			w.Write([]byte("Please Sign In."))
+		}
+	}
+}
+
+// isSignIn
+func isSignIn(r *http.Request) bool {
+	cookie, err := r.Cookie("session_id")
+	// if err == http.ErrNoCookie {
+	// 	log.Println("Cookie: ", err)
+	// 	return false
+	// }
+	if err != nil {
+		log.Println("Cookie: ", err)
+		return false
+	}
+
+	_, err = database.GetSession(cookie.Value)
+	if err != nil {
+		log.Fatal(err.Error())
+		return false
+	}
+	return true
+}
+
 // GetCookie is get session id for check
 func GetCookie(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie(("session_id"))
